@@ -263,6 +263,7 @@ export async function loadConfig(): Promise<Config> {
   const files = ['engine.json', 'agent.json', 'crypto.json', 'securities.json', 'openbb.json', 'compaction.json', 'ai-provider.json', 'heartbeat.json', 'connectors.json', 'news-collector.json', 'tools.json'] as const
   const raws = await Promise.all(files.map((f) => loadJsonFile(f)))
 
+  // TODO: remove all migration blocks before v1.0 — no stable release yet, breaking changes are fine
   // ---------- Migration: consolidate old ai-provider + model + api-keys → ai-provider ----------
   const aiProviderRaw = raws[6] as Record<string, unknown> | undefined
   if (aiProviderRaw && !('backend' in aiProviderRaw)) {
@@ -345,7 +346,8 @@ export async function loadTradingConfig(): Promise<{
   return migrateLegacyTradingConfig()
 }
 
-/** Derive platform+account config from old crypto.json + securities.json, then write to disk. */
+/** Derive platform+account config from old crypto.json + securities.json, then write to disk.
+ *  TODO: remove before v1.0 — drop crypto.json/securities.json support entirely */
 async function migrateLegacyTradingConfig(): Promise<{
   platforms: PlatformConfig[]
   accounts: AccountConfig[]

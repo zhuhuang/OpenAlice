@@ -47,7 +47,8 @@ import { NewsCollectorStore, NewsCollector, wrapNewsToolsForPiggyback, createNew
 
 const BRAIN_FILE = resolve('data/brain/commit.json')
 
-/** Per-account git state path. Falls back to legacy paths for backward compat. */
+/** Per-account git state path. Falls back to legacy paths for backward compat.
+ *  TODO: remove LEGACY_GIT_PATHS before v1.0 */
 function gitFilePath(accountId: string): string {
   return resolve(`data/trading/${accountId}/commit.json`)
 }
