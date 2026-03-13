@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "tsx src/main.ts",
-    "dev:ui": "cd ui && pnpm dev",
+    "dev:ui": "pnpm --filter open-alice-ui dev",
     "build": "pnpm build:ui && pnpm build:backend",
-    "build:ui": "cd ui && pnpm install && pnpm build",
+    "build:ui": "pnpm --filter open-alice-ui build",
     "build:backend": "tsup src/main.ts --format esm --dts",
     "test": "vitest run",
     "test:watch": "vitest"
