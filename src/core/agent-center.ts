@@ -20,8 +20,7 @@ import { compactIfNeeded } from './compaction.js'
 import type { MediaAttachment } from './types.js'
 import { extractMediaFromToolResultContent } from './media.js'
 import { persistMedia } from './media-store.js'
-import { logToolCall } from '../ai-providers/log-tool-call.js'
-import { stripImageData, buildChatHistoryPrompt, DEFAULT_MAX_HISTORY } from './provider-utils.js'
+import { logToolCall, stripImageData, buildChatHistoryPrompt, DEFAULT_MAX_HISTORY } from '../ai-providers/utils.js'
 
 // ==================== Types ====================
 

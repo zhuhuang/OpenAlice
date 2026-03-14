@@ -1,8 +1,5 @@
 /**
- * Shared utilities extracted from claude-code/provider.ts and agent-sdk/query.ts.
- *
- * These were previously copy-pasted across multiple providers.
- * Now centralized here for single-source-of-truth usage.
+ * Shared utilities used across AI providers and AgentCenter.
  */
 
 // ==================== Strip Image Data ====================
@@ -98,3 +95,11 @@ export function buildChatHistoryPrompt(
 
 /** Default max history entries for text-based providers. */
 export const DEFAULT_MAX_HISTORY = 50
+
+// ==================== Tool Call Logging ====================
+
+/** Log a tool call with a short input preview. */
+export function logToolCall(name: string, input: unknown) {
+  const preview = JSON.stringify(input).slice(0, 120)
+  console.log(`  ↳ ${name}(${preview})`)
+}

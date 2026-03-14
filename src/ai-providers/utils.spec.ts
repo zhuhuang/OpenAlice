@@ -8,7 +8,7 @@ import {
   NORMAL_EXTRA_DISALLOWED,
   EVOLUTION_EXTRA_DISALLOWED,
   DEFAULT_MAX_HISTORY,
-} from './provider-utils.js'
+} from './utils.js'
 
 // ==================== stripImageData ====================
 
