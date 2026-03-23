@@ -102,12 +102,8 @@ export function createTradingConfigRoutes(ctx: EngineContext) {
         return c.json({ error: `Account "${id}" not found` }, 404)
       }
       await writeAccountsConfig(filtered)
-      // Close running account instance if any
-      if (ctx.accountManager.has(id)) {
-        const uta = ctx.accountManager.get(id)
-        ctx.accountManager.remove(id)
-        try { await uta?.close() } catch { /* best effort */ }
-      }
+      // Close and deregister running account instance if any
+      await ctx.accountManager.removeAccount(id)
       return c.json({ success: true })
     } catch (err) {
       return c.json({ error: String(err) }, 500)
