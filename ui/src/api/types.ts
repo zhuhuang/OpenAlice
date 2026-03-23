@@ -270,6 +270,7 @@ export interface AccountConfig {
   id: string
   label?: string
   type: string
+  enabled: boolean
   guards: GuardEntry[]
   brokerConfig: Record<string, unknown>
 }

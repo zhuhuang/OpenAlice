@@ -216,6 +216,7 @@ export const accountConfigSchema = z.object({
   id: z.string(),
   label: z.string().optional(),
   type: z.string(),
+  enabled: z.boolean().default(true),
   guards: z.array(guardConfigSchema).default([]),
   brokerConfig: z.record(z.string(), z.unknown()).default({}),
 })

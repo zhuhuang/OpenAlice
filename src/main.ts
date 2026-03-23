@@ -79,6 +79,7 @@ async function main() {
 
   const accountConfigs = await readAccountsConfig()
   for (const accCfg of accountConfigs) {
+    if (accCfg.enabled === false) continue
     await accountManager.initAccount(accCfg)
   }
   accountManager.registerCcxtToolsIfNeeded()

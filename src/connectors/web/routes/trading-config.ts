@@ -105,6 +105,18 @@ export function createTradingConfigRoutes(ctx: EngineContext) {
         accounts.push(validated)
       }
       await writeAccountsConfig(accounts)
+
+      // Handle enabled state changes at runtime
+      const wasEnabled = existing?.enabled !== false
+      const nowEnabled = validated.enabled !== false
+      if (wasEnabled && !nowEnabled) {
+        // Disabled — close running account
+        await ctx.accountManager.removeAccount(id)
+      } else if (!wasEnabled && nowEnabled) {
+        // Enabled — start account
+        ctx.accountManager.reconnectAccount(id).catch(() => {})
+      }
+
       return c.json(validated)
     } catch (err) {
       if (err instanceof Error && err.name === 'ZodError') {

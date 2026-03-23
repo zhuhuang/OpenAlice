@@ -239,7 +239,7 @@ function AccountCard({ account, brokerType, health, onClick }: {
   health?: BrokerHealthInfo
   onClick: () => void
 }) {
-  const isDisabled = health?.disabled
+  const isDisabled = health?.disabled || account.enabled === false
   const badge = brokerType
     ? { text: brokerType.badge, color: `${brokerType.badgeColor} ${brokerType.badgeColor.replace('text-', 'bg-')}/10` }
     : { text: account.type.slice(0, 2).toUpperCase(), color: 'text-text-muted bg-text-muted/10' }
@@ -261,7 +261,10 @@ function AccountCard({ account, brokerType, health, onClick }: {
           </div>
         </div>
         <div className="shrink-0">
-          <HealthBadge health={health} />
+          {account.enabled === false
+            ? <span className="text-[11px] text-text-muted">Disabled</span>
+            : <HealthBadge health={health} />
+          }
         </div>
       </div>
     </button>
@@ -400,7 +403,7 @@ function CreateWizard({ brokerTypes, existingAccountIds, onSave, onClose }: {
   const handleCreate = async () => {
     setSaving(true); setError('')
     try {
-      const account: AccountConfig = { id: finalId, type: type!, guards: [], brokerConfig }
+      const account: AccountConfig = { id: finalId, type: type!, enabled: true, guards: [], brokerConfig }
 
       const testResult = await api.trading.testConnection(account)
       if (!testResult.success) {
@@ -628,7 +631,15 @@ function EditDialog({ account, brokerType, health, onSaveAccount, onDelete, onCl
               {saving ? 'Saving...' : 'Save'}
             </button>
           )}
-          <ReconnectButton accountId={account.id} />
+          {draft.enabled !== false && <ReconnectButton accountId={account.id} />}
+          <label className="flex items-center gap-2 cursor-pointer">
+            <Toggle checked={draft.enabled !== false} onChange={async (v) => {
+              const updated = { ...draft, enabled: v }
+              setDraft(updated)
+              await onSaveAccount(updated)
+            }} />
+            <span className="text-[12px] text-text-muted">{draft.enabled !== false ? 'Enabled' : 'Disabled'}</span>
+          </label>
           {msg && <span className="text-[12px] text-text-muted">{msg}</span>}
         </div>
         <div className="flex-1" />
