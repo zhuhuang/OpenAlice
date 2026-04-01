@@ -95,6 +95,8 @@ export interface OpenOrder {
   orderState: OrderState
   /** Average fill price — from orderStatus callback or broker-specific source. */
   avgFillPrice?: number
+  /** Attached take-profit / stop-loss (CCXT: from order fields; Alpaca: from bracket legs). */
+  tpsl?: TpSlParams
 }
 
 // ==================== Account info ====================

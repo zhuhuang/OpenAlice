@@ -438,10 +438,30 @@ export class AlpacaBroker implements IBroker {
     // The real string ID is preserved through PlaceOrderResult.orderId and getOrder(string).
     order.orderId = 0
 
+    const tpsl = this.extractTpSl(o)
     return {
       contract,
       order,
       orderState: makeOrderState(o.status, o.reject_reason ?? undefined),
+      ...(tpsl && { tpsl }),
     }
+  }
+
+  private extractTpSl(o: AlpacaOrderRaw): TpSlParams | undefined {
+    if (o.order_class !== 'bracket' || !o.legs?.length) return undefined
+    let takeProfit: TpSlParams['takeProfit']
+    let stopLoss: TpSlParams['stopLoss']
+    for (const leg of o.legs) {
+      if (leg.limit_price && !leg.stop_price) {
+        takeProfit = { price: leg.limit_price }
+      } else if (leg.stop_price) {
+        stopLoss = {
+          price: leg.stop_price,
+          ...(leg.limit_price && { limitPrice: leg.limit_price }),
+        }
+      }
+    }
+    if (!takeProfit && !stopLoss) return undefined
+    return { takeProfit, stopLoss }
   }
 }

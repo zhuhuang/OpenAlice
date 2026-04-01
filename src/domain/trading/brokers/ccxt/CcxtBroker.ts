@@ -562,10 +562,20 @@ export class CcxtBroker implements IBroker<CcxtBrokerMeta> {
     if (o.price != null) order.lmtPrice = o.price
     order.orderId = parseInt(o.id, 10) || 0
 
+    const tp = o.takeProfitPrice
+    const sl = o.stopLossPrice
+    const tpsl: TpSlParams | undefined = (tp != null || sl != null)
+      ? {
+        ...(tp != null && { takeProfit: { price: String(tp) } }),
+        ...(sl != null && { stopLoss: { price: String(sl) } }),
+      }
+      : undefined
+
     return {
       contract,
       order,
       orderState: makeOrderState(o.status),
+      ...(tpsl && { tpsl }),
     }
   }
 
