@@ -16,8 +16,7 @@ import { pino } from 'pino'
 import type { ProviderResult, ProviderEvent, AIProvider, GenerateOpts } from '../types.js'
 import type { SessionEntry } from '../../core/session.js'
 import type { ResolvedProfile } from '../../core/config.js'
-import { toTextHistory } from '../../core/session.js'
-import { buildChatHistoryPrompt, DEFAULT_MAX_HISTORY } from '../utils.js'
+import { toResponsesInput } from '../../core/session.js'
 import { readAgentConfig } from '../../core/config.js'
 import { getAccessToken, clearTokenCache } from './auth.js'
 import { convertTools } from './tool-bridge.js'
@@ -96,10 +95,6 @@ export class CodexProvider implements AIProvider {
     prompt: string,
     opts?: GenerateOpts,
   ): AsyncGenerator<ProviderEvent> {
-    const maxHistory = opts?.maxHistoryEntries ?? DEFAULT_MAX_HISTORY
-    const textHistory = toTextHistory(entries).slice(-maxHistory)
-    const fullPrompt = buildChatHistoryPrompt(prompt, textHistory, opts?.historyPreamble)
-
     const { client, model } = await this.createClient(opts?.profile)
     const instructions = opts?.systemPrompt ?? await this.getSystemPrompt()
     const agentConfig = await readAgentConfig()
@@ -109,9 +104,11 @@ export class CodexProvider implements AIProvider {
     const allTools = await this.getTools()
     const tools = convertTools(allTools, opts?.disabledTools)
 
-    // Build initial input
+    // Build structured input from session history + current prompt
+    const history = toResponsesInput(entries)
     const input: OpenAI.Responses.ResponseInputItem[] = [
-      { role: 'user', content: fullPrompt, type: 'message' },
+      ...history as OpenAI.Responses.ResponseInputItem[],
+      { role: 'user', content: prompt },
     ]
 
     yield* this.toolLoop(client, model, instructions, input, tools, allTools, maxSteps)
