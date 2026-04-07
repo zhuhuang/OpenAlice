@@ -150,12 +150,17 @@ export class CodexProvider implements AIProvider {
           if (event.type === 'response.output_text.delta') {
             yield { type: 'text', text: event.delta }
             stepText += event.delta
-          } else if (event.type === 'response.function_call_arguments.done') {
-            functionCalls.push({
-              call_id: event.item_id,
-              name: event.name,
-              arguments: event.arguments,
-            })
+          } else if (event.type === 'response.output_item.done') {
+            // function_call_arguments.done lacks call_id and name;
+            // output_item.done carries the complete function call object.
+            const item = (event as any).item
+            if (item?.type === 'function_call') {
+              functionCalls.push({
+                call_id: item.call_id,
+                name: item.name,
+                arguments: item.arguments,
+              })
+            }
           }
         }
       } catch (err: any) {
