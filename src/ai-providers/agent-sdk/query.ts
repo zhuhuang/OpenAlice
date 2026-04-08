@@ -148,11 +148,7 @@ export async function askAgentSdk(
       options: {
         cwd,
         env,
-        // OAuth mode: omit model to let Claude Code pick based on subscription plan.
-        // API key mode: use profile model or fall back to sonnet.
-        ...(isOAuthMode
-          ? (override?.model ? { model: override.model } : {})
-          : { model: override?.model ?? 'claude-sonnet-4-6' }),
+        model: override?.model ?? 'claude-sonnet-4-6',
         maxTurns,
         allowedTools: finalAllowed,
         disallowedTools: finalDisallowed,

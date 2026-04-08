@@ -29,7 +29,6 @@ export interface PresetDef {
   defaultName: string
   zodSchema: z.ZodType
   models?: ModelOption[]
-  modelOptional?: boolean
   writeOnlyFields?: string[]
 }
 
@@ -45,13 +44,12 @@ export const CLAUDE_OAUTH: PresetDef = {
   zodSchema: z.object({
     backend: z.literal('agent-sdk'),
     loginMethod: z.literal('claudeai'),
-    model: z.string().optional().default('').describe('Leave empty to auto-select based on your plan'),
+    model: z.string().default('claude-sonnet-4-6').describe('Model'),
   }),
   models: [
     { id: 'claude-opus-4-6', label: 'Claude Opus 4.6' },
     { id: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6' },
   ],
-  modelOptional: true,
 }
 
 export const CLAUDE_API: PresetDef = {
@@ -86,13 +84,12 @@ export const CODEX_OAUTH: PresetDef = {
   zodSchema: z.object({
     backend: z.literal('codex'),
     loginMethod: z.literal('codex-oauth'),
-    model: z.string().optional().default('gpt-5.4').describe('Leave empty to auto-select'),
+    model: z.string().default('gpt-5.4').describe('Model'),
   }),
   models: [
     { id: 'gpt-5.4', label: 'GPT 5.4' },
     { id: 'gpt-5.4-mini', label: 'GPT 5.4 Mini' },
   ],
-  modelOptional: true,
 }
 
 export const CODEX_API: PresetDef = {

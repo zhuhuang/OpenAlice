@@ -34,9 +34,6 @@ function buildJsonSchema(def: PresetDef): Record<string, unknown> {
   const mf = 'model'
   if (def.models?.length && props[mf]) {
     const oneOf = def.models.map(m => ({ const: m.id, title: m.label }))
-    if (def.modelOptional) {
-      oneOf.unshift({ const: '', title: 'Auto (based on subscription plan)' })
-    }
     const { enum: _e, ...rest } = props[mf]
     props[mf] = { ...rest, oneOf }
   }
