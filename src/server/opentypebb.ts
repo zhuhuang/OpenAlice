@@ -16,6 +16,14 @@ import {
   type QueryExecutor,
 } from '@traderalice/opentypebb'
 
+export interface DefaultProviders {
+  /** Also used for etf/index/derivatives, matching main.ts client construction. */
+  equity: string
+  crypto: string
+  currency: string
+  commodity: string
+}
+
 export interface MountOpenTypeBBOptions {
   /** URL prefix to mount routes under (e.g. `/api/market-data-v1`). */
   basePath: string
@@ -24,6 +32,35 @@ export interface MountOpenTypeBBOptions {
    * `X-OpenBB-Credentials` header — typically the server-side provider keys.
    */
   defaultCredentials: Record<string, string>
+  /**
+   * Per-asset-class default provider, used when the request omits `?provider=`.
+   * The asset class is the first path segment after `basePath`.
+   */
+  defaultProviders: DefaultProviders
+}
+
+function makeProviderResolver(
+  basePath: string,
+  providers: DefaultProviders,
+): (path: string) => string | undefined {
+  return (path: string) => {
+    const sub = path.slice(basePath.length).replace(/^\/+/, '').split('/')[0]
+    switch (sub) {
+      case 'equity':
+      case 'etf':
+      case 'index':
+      case 'derivatives':
+        return providers.equity
+      case 'crypto':
+        return providers.crypto
+      case 'currency':
+        return providers.currency
+      case 'commodity':
+        return providers.commodity
+      default:
+        return undefined
+    }
+  }
 }
 
 export function mountOpenTypeBB(
@@ -34,7 +71,8 @@ export function mountOpenTypeBB(
   const rootRouter = loadAllRouters()
   const registry = createRegistry()
 
-  rootRouter.mountToHono(app, executor, opts.basePath, opts.defaultCredentials)
+  const resolveProvider = makeProviderResolver(opts.basePath, opts.defaultProviders)
+  rootRouter.mountToHono(app, executor, opts.basePath, opts.defaultCredentials, resolveProvider)
 
   const widgetsJson = buildWidgetsJson(rootRouter, registry)
   app.get(`${opts.basePath}/widgets.json`, (c) => c.json(widgetsJson))

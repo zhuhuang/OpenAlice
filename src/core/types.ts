@@ -3,6 +3,7 @@ import type { AccountManager } from '../domain/trading/index.js'
 import type { FxService } from '../domain/trading/fx-service.js'
 import type { SnapshotService } from '../domain/trading/snapshot/index.js'
 import type { INewsProvider } from '../domain/news/types.js'
+import type { MarketSearchDeps } from '../domain/market-data/aggregate-search.js'
 import type { CronEngine } from '../task/cron/engine.js'
 import type { Heartbeat } from '../task/heartbeat/index.js'
 import type { Config, WebChannel } from './config.js'
@@ -44,6 +45,9 @@ export interface EngineContext {
 
   // Market data
   bbEngine: QueryExecutor
+  /** Deps for cross-asset-class heuristic symbol search. Shared between the
+   *  AI tool (marketSearchForResearch) and the /api/market/search HTTP route. */
+  marketSearch: MarketSearchDeps
 
   // Trading (unified account model)
   accountManager: AccountManager

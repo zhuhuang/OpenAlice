@@ -24,6 +24,7 @@ import { createToolsRoutes } from './routes/tools.js'
 import { createAgentStatusRoutes } from './routes/agent-status.js'
 import { createPersonaRoutes } from './routes/persona.js'
 import { createNewsRoutes } from './routes/news.js'
+import { createMarketRoutes } from './routes/market.js'
 import { mountOpenTypeBB } from '../../server/opentypebb.js'
 import { buildSDKCredentials } from '../../domain/market-data/credential-map.js'
 
@@ -112,6 +113,7 @@ export class WebPlugin implements Plugin {
     app.route('/api/tools', createToolsRoutes(ctx.toolCenter))
     app.route('/api/agent-status', createAgentStatusRoutes(ctx))
     app.route('/api/news', createNewsRoutes(ctx))
+    app.route('/api/market', createMarketRoutes(ctx))
     app.route('/api/persona', createPersonaRoutes())
 
     // ==================== Mount opentypebb (market data HTTP) ====================
@@ -120,6 +122,7 @@ export class WebPlugin implements Plugin {
     mountOpenTypeBB(app, ctx.bbEngine, {
       basePath: '/api/market-data-v1',
       defaultCredentials: buildSDKCredentials(ctx.config.marketData.providerKeys),
+      defaultProviders: ctx.config.marketData.providers,
     })
 
     // ==================== Serve UI (Vite build output) ====================
