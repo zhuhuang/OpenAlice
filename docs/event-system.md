@@ -24,9 +24,11 @@ Canonical example: [cron-router](../src/task/cron/listener.ts).
 
 **Producer (Pumper)** — pure event source. Only emits, never subscribes.
 Declared against the same registry. Canonical examples: [cron-engine](../src/task/cron/engine.ts)
-(timer), [web-chat / webhook-ingest](../src/connectors/web/web-plugin.ts)
-(HTTP gateways), [telegram-connector](../src/connectors/telegram/telegram-plugin.ts)
-(bot polling).
+(timer), [webhook-ingest](../src/connectors/web/web-plugin.ts) (HTTP),
+[connectors](../src/core/connector-center.ts) (shared across every connector
+plugin — Web chat, Telegram, future Discord/Slack/etc., all emit
+`message.received` / `message.sent` through ConnectorCenter's single
+`connectors` producer rather than declaring their own).
 
 Listeners and Producers **share one name namespace** — a name cannot be both.
 The registry enforces this at declare time.
@@ -157,6 +159,17 @@ await producer.emit('my.event', { ... })
 // Lifecycle
 producer.dispose()  // call from the owning module's shutdown
 ```
+
+**Special case: adding a new Connector plugin.** If you're wiring a new
+Connector (Discord, Slack, IMAP, etc.), **do not** declare your own
+`message.received` / `message.sent` producer. That pump is owned by
+ConnectorCenter as a single shared `connectors` producer — your plugin
+calls `ctx.connectorCenter.emitMessageReceived(...)` /
+`ctx.connectorCenter.emitMessageSent(...)` at the points it observes
+incoming / outgoing messages. The `channel` field on the payload carries
+source attribution (`'web'` / `'telegram'` / ...). This keeps the Flow
+graph clean (one producer node, not one per connector) and means new
+connectors don't have to reinvent the lifecycle wiring each time.
 
 When choosing `emits`:
 
